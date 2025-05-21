@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repositories</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub Repositories</h1>
+        <form method="post">
+            <input type="text" id="username" name="username" placeholder="Enter GitHub Username">
+            <button type="submit">Get Repositories</button>
+        </form>
+        <div class="repositories">
+            {% for repo in repos %}
+                <div class="repo">
+                    <h2>{{ repo.name }}</h2>
+                    <p>{{ repo.description }}</p>
+                    <a href="{{ repo.html_url }}" target="_blank">View on GitHub</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
