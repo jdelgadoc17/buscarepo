@@ -38,6 +38,7 @@ def index():
     per_page = 10
     total_pages = 1
     sort = request.args.get("sort", "")
+    stats = None
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         sort = request.form.get("sort", "")
@@ -59,6 +60,18 @@ def index():
     elif sort == "created":
         repos = sorted(repos, key=lambda r: r.get("created_at", ""), reverse=True)
     total_pages = math.ceil(len(repos) / per_page) if repos else 1
+    # Estadísticas rápidas
+    if user_data:
+        total_repos = user_data.get("public_repos", 0)
+        followers = user_data.get("followers", 0)
+        following = user_data.get("following", 0)
+        total_stars = sum(r.get("stargazers_count", 0) for r in repos)
+        stats = {
+            "total_repos": total_repos,
+            "followers": followers,
+            "following": following,
+            "total_stars": total_stars
+        }
     # Paginación
     start = (page - 1) * per_page
     end = start + per_page
@@ -71,7 +84,8 @@ def index():
         page=page,
         total_pages=total_pages,
         user_data=user_data,
-        sort=sort
+        sort=sort,
+        stats=stats
     )
 
 @app.route("/download_csv")

@@ -8,20 +8,27 @@
 </head>
 <body>
     <div class="container">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+            <button id="toggleTheme" type="button" class="csv-btn" style="min-width: 90px;" alt="Alternar modo claro/oscuro">🌙/☀️</button>
+        </div>
         <h1>GitHub Repositories</h1>
         <form method="post" class="search-form" id="searchForm">
             <input type="text" id="username" name="username" placeholder="Enter GitHub Username" value="{{ username }}">
             {% if username %}
-            <select name="sort" class="sort-select" id="sortSelect">
+            <select name="sort" class="sort-select" id="sortSelect" alt="Ordenar repositorios">
                 <option value="" {% if not sort %}selected{% endif %}>Ordenar por...</option>
                 <option value="name" {% if sort == 'name' %}selected{% endif %}>Nombre</option>
                 <option value="stars" {% if sort == 'stars' %}selected{% endif %}>Estrellas</option>
                 <option value="created" {% if sort == 'created' %}selected{% endif %}>Fecha de creación</option>
             </select>
             {% endif %}
-            <button type="submit">Get Repositories</button>
+            <button type="submit" alt="Buscar repositorios">Get Repositories</button>
         </form>
-        
+        {% if username and repos %}
+        <div class="download-csv-form">
+            <a href="/download_csv?username={{ username }}{% if sort %}&sort={{ sort }}{% endif %}" class="csv-btn" alt="Descargar listado como CSV">Descargar CSV</a>
+        </div>
+        {% endif %}
         {% if user_data %}
             <div class="user-profile">
                 <a href="{{ user_data.html_url }}" target="_blank">
@@ -36,14 +43,26 @@
                     {% endif %}
                 </div>
             </div>
+            {% if stats %}
+            <div class="quick-stats">
+                <div class="stat"><span class="stat-label">Repositorios:</span> <span class="stat-value">{{ stats.total_repos }}</span></div>
+                <div class="stat"><span class="stat-label">Seguidores:</span> <span class="stat-value">{{ stats.followers }}</span></div>
+                <div class="stat"><span class="stat-label">Siguiendo:</span> <span class="stat-value">{{ stats.following }}</span></div>
+                <div class="stat"><span class="stat-label">⭐ Estrellas totales:</span> <span class="stat-value">{{ stats.total_stars }}</span></div>
+            </div>
+            <div class="repo-hint">Haz clic en el repositorio para abrirlo en GitHub.</div>
+            {% endif %}
         {% endif %}
         <div class="repositories">
             {% if repos %}
                 {% for repo in repos %}
-                    <div class="repo">
+                    <div class="repo" data-url="{{ repo.html_url }}" tabindex="0" alt="Repositorio {{ repo.name }}">
                         <h2>{{ repo.name }}</h2>
-                        <p>{{ repo.description or 'Sin descripción' }}</p>
-                        <a href="{{ repo.html_url }}" target="_blank">Ver en GitHub</a>
+                        {% if repo.description %}
+                        <p>{{ repo.description }}</p>
+                        {% else %}
+                        <p></p>
+                        {% endif %}
                     </div>
                 {% endfor %}
                 {% if (total_pages > 1) or (username and repos) %}
@@ -51,22 +70,17 @@
                     {% if total_pages > 1 %}
                     <div class="pagination">
                         {% if page > 1 %}
-                            <a href="?username={{ username }}&page={{ page - 1 }}{% if sort %}&sort={{ sort }}{% endif %}" class="page-btn">Anterior</a>
+                            <a href="?username={{ username }}&page={{ page - 1 }}{% if sort %}&sort={{ sort }}{% endif %}" class="page-btn" alt="Página anterior">Anterior</a>
                         {% endif %}
                         <span>Página {{ page }} de {{ total_pages }}</span>
                         {% if page < total_pages %}
-                            <a href="?username={{ username }}&page={{ page + 1 }}{% if sort %}&sort={{ sort }}{% endif %}" class="page-btn">Siguiente</a>
+                            <a href="?username={{ username }}&page={{ page + 1 }}{% if sort %}&sort={{ sort }}{% endif %}" class="page-btn" alt="Página siguiente">Siguiente</a>
                         {% endif %}
-                    </div>
-                    {% endif %}
-                    {% if username and repos %}
-                    <div class="download-csv">
-                        <a href="/download_csv?username={{ username }}{% if sort %}&sort={{ sort }}{% endif %}" class="csv-btn">Descargar listado como CSV</a>
                     </div>
                     {% endif %}
                 </div>
                 {% endif %}
-            {% else %}
+            {% elif username %}
                 <p class="no-repos">No se encontraron repositorios.</p>
             {% endif %}
         </div>
