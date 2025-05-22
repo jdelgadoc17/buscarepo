@@ -27,6 +27,14 @@
         {% if username and repos %}
         <div class="download-csv-form">
             <a href="/download_csv?username={{ username }}{% if sort %}&sort={{ sort }}{% endif %}" class="csv-btn" alt="Descargar listado como CSV" aria-label="Descargar listado como CSV" style="cursor: pointer;" title="Descargar listado como CSV">Descargar CSV</a>
+            <button id="showStatsBtn" type="button" class="csv-btn" style="margin-left: 10px; cursor: pointer;" title="Ver estadísticas de actividad" aria-label="Ver estadísticas de actividad">Ver estadísticas</button>
+        </div>
+        <div id="activityStatsModal" class="modal">
+            <div class="modal-content">
+                <button id="closeStatsModal" title="Cerrar">&times;</button>
+                <h2 style="text-align:center; color:#1565c0;">Estadísticas de Actividad</h2>
+                <div id="activityStatsContent"></div>
+            </div>
         </div>
         {% endif %}
         {% if user_data %}
@@ -86,5 +94,7 @@
         </div>
     </div>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='stats.js') }}"></script>
 </body>
 </html>
