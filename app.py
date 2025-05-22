@@ -1,50 +1,111 @@
-from flask import Flask, render_template, request
+import requests
 import json
-import subprocess
+from flask import Flask, render_template, request, send_file, Response
+import math
+import csv
+import io
 
 app = Flask(__name__, static_folder='static')
 
 def get_github_repos(username):
     try:
-        command = [
-            "C:\\Program Files\\nodejs\\npx.cmd",
-            "-y",
-            "@modelcontextprotocol/cli",
-            "call",
-            "github.com/modelcontextprotocol/servers/tree/main/src/github",
-            "search_repositories",
-            '{"query": f"user:{username}"}'
-        ]
-        result = subprocess.run(command, capture_output=True, text=True, check=True)
-        output = result.stdout.strip()
-        try:
-            data = json.loads(output)
-            # Ajusta aquí si la estructura es diferente
-            if "items" in data:
-                return data["items"]
-            elif isinstance(data, list):
-                return data
-            else:
-                print(f"Estructura inesperada: {data}")
-                return []
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}, output: {output}")
-            return []
-    except subprocess.CalledProcessError as e:
-        print(f"Error ejecutando el comando: {e}\nSalida de error: {e.stderr}")
+        url = f"https://api.github.com/users/{username}/repos"
+        response = requests.get(url)
+        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+        repos = response.json()
+        return repos
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching repositories: {e}")
         return []
+
+def get_github_user(username):
+    try:
+        url = f"https://api.github.com/users/{username}"
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching user: {e}")
+        return None
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     repos = []
     username = ""
     user_url = ""
+    user_data = None
+    page = int(request.args.get("page", 1))
+    per_page = 10
+    total_pages = 1
+    sort = request.args.get("sort", "")
     if request.method == "POST":
         username = request.form.get("username", "").strip()
+        sort = request.form.get("sort", "")
         if username:
             repos = get_github_repos(username)
             user_url = f"https://github.com/{username}?tab=repositories"
-    return render_template("index.html", repos=repos, username=username, user_url=user_url)
+            user_data = get_github_user(username)
+    elif request.method == "GET":
+        username = request.args.get("username", "").strip()
+        if username:
+            repos = get_github_repos(username)
+            user_url = f"https://github.com/{username}?tab=repositories"
+            user_data = get_github_user(username)
+    # Ordenar repositorios
+    if sort == "name":
+        repos = sorted(repos, key=lambda r: r.get("name", "").lower())
+    elif sort == "stars":
+        repos = sorted(repos, key=lambda r: r.get("stargazers_count", 0), reverse=True)
+    elif sort == "created":
+        repos = sorted(repos, key=lambda r: r.get("created_at", ""), reverse=True)
+    total_pages = math.ceil(len(repos) / per_page) if repos else 1
+    # Paginación
+    start = (page - 1) * per_page
+    end = start + per_page
+    repos_paginated = repos[start:end]
+    return render_template(
+        "index.html",
+        repos=repos_paginated,
+        username=username,
+        user_url=user_url,
+        page=page,
+        total_pages=total_pages,
+        user_data=user_data,
+        sort=sort
+    )
+
+@app.route("/download_csv")
+def download_csv():
+    username = request.args.get("username", "").strip()
+    sort = request.args.get("sort", "")
+    if not username:
+        return "No username provided", 400
+    repos = get_github_repos(username)
+    # Ordenar repositorios igual que en la vista principal
+    if sort == "name":
+        repos = sorted(repos, key=lambda r: r.get("name", "").lower())
+    elif sort == "stars":
+        repos = sorted(repos, key=lambda r: r.get("stargazers_count", 0), reverse=True)
+    elif sort == "created":
+        repos = sorted(repos, key=lambda r: r.get("created_at", ""), reverse=True)
+    # Crear CSV en memoria
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Nombre", "Descripción", "URL"])
+    for repo in repos:
+        writer.writerow([
+            repo.get("name", ""),
+            repo.get("description", ""),
+            repo.get("html_url", "")
+        ])
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": f"attachment; filename={username}_repos.csv"
+        }
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

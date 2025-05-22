@@ -9,19 +9,68 @@
 <body>
     <div class="container">
         <h1>GitHub Repositories</h1>
-        <form method="post">
-            <input type="text" id="username" name="username" placeholder="Enter GitHub Username">
+        <form method="post" class="search-form" id="searchForm">
+            <input type="text" id="username" name="username" placeholder="Enter GitHub Username" value="{{ username }}">
+            {% if username %}
+            <select name="sort" class="sort-select" id="sortSelect">
+                <option value="" {% if not sort %}selected{% endif %}>Ordenar por...</option>
+                <option value="name" {% if sort == 'name' %}selected{% endif %}>Nombre</option>
+                <option value="stars" {% if sort == 'stars' %}selected{% endif %}>Estrellas</option>
+                <option value="created" {% if sort == 'created' %}selected{% endif %}>Fecha de creación</option>
+            </select>
+            {% endif %}
             <button type="submit">Get Repositories</button>
         </form>
-        <div class="repositories">
-            {% for repo in repos %}
-                <div class="repo">
-                    <h2>{{ repo.name }}</h2>
-                    <p>{{ repo.description }}</p>
-                    <a href="{{ repo.html_url }}" target="_blank">View on GitHub</a>
+        
+        {% if user_data %}
+            <div class="user-profile">
+                <a href="{{ user_data.html_url }}" target="_blank">
+                    <img src="{{ user_data.avatar_url }}" alt="Avatar de {{ user_data.login }}" class="avatar">
+                </a>
+                <div class="user-info">
+                    <a href="{{ user_data.html_url }}" target="_blank" class="profile-link">
+                        <span class="username">{{ user_data.login }}</span>
+                    </a>
+                    {% if user_data.name %}
+                        <div class="realname">{{ user_data.name }}</div>
+                    {% endif %}
                 </div>
-            {% endfor %}
+            </div>
+        {% endif %}
+        <div class="repositories">
+            {% if repos %}
+                {% for repo in repos %}
+                    <div class="repo">
+                        <h2>{{ repo.name }}</h2>
+                        <p>{{ repo.description or 'Sin descripción' }}</p>
+                        <a href="{{ repo.html_url }}" target="_blank">Ver en GitHub</a>
+                    </div>
+                {% endfor %}
+                {% if (total_pages > 1) or (username and repos) %}
+                <div class="pagination-download">
+                    {% if total_pages > 1 %}
+                    <div class="pagination">
+                        {% if page > 1 %}
+                            <a href="?username={{ username }}&page={{ page - 1 }}{% if sort %}&sort={{ sort }}{% endif %}" class="page-btn">Anterior</a>
+                        {% endif %}
+                        <span>Página {{ page }} de {{ total_pages }}</span>
+                        {% if page < total_pages %}
+                            <a href="?username={{ username }}&page={{ page + 1 }}{% if sort %}&sort={{ sort }}{% endif %}" class="page-btn">Siguiente</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% if username and repos %}
+                    <div class="download-csv">
+                        <a href="/download_csv?username={{ username }}{% if sort %}&sort={{ sort }}{% endif %}" class="csv-btn">Descargar listado como CSV</a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <p class="no-repos">No se encontraron repositorios.</p>
+            {% endif %}
         </div>
     </div>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>

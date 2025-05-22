@@ -7,17 +7,18 @@ body {
 }
 
 .container {
-    width: 80%;
-    margin: 0 auto;
+    max-width: 600px;
+    margin: 40px auto;
     background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    padding: 30px 30px 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.15);
 }
 
 h1 {
-    color: #1b5e20;
+    color: #1565c0;
     text-align: center;
+    margin-bottom: 24px;
 }
 
 form {
@@ -26,37 +27,209 @@ form {
     align-items: center;
 }
 
+.search-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
 input[type="text"] {
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #81c784;
-    border-radius: 5px;
+    padding: 10px 14px;
+    border: 1px solid #90caf9;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: 60%;
+    transition: border 0.2s;
+}
+input[type="text"]:focus {
+    border: 1.5px solid #1976d2;
+    outline: none;
 }
 
 button[type="submit"] {
-    padding: 10px 20px;
-    background-color: #388e3c;
+    padding: 10px 22px;
+    background: linear-gradient(90deg, #1976d2 60%, #64b5f6 100%);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1rem;
     cursor: pointer;
+    transition: background 0.2s;
+}
+button[type="submit"]:hover {
+    background: linear-gradient(90deg, #1565c0 60%, #42a5f5 100%);
+}
+
+.user-link {
+    text-align: center;
+    margin-bottom: 18px;
+}
+.user-link a {
+    color: #1976d2;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+.user-link a:hover {
+    color: #0d47a1;
 }
 
 .repositories {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .repo {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #a5d6a7;
-    border-radius: 5px;
+    background: #e3f2fd;
+    border-radius: 8px;
+    padding: 18px 16px 10px 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(33, 150, 243, 0.08);
 }
-
 .repo h2 {
-    color: #2e7d32;
+    margin: 0 0 6px 0;
+    color: #1976d2;
+    font-size: 1.2rem;
+}
+.repo p {
+    margin: 0 0 8px 0;
+    color: #37474f;
+    font-size: 1rem;
+}
+.repo a {
+    color: #1565c0;
+    text-decoration: underline;
+    font-size: 0.98rem;
+}
+.repo a:hover {
+    color: #0d47a1;
 }
 
-.repo a {
-    color: #1b5e20;
+.pagination-download {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    margin: 24px 0 0 0;
+    flex-wrap: wrap;
+}
+.download-csv {
+    margin: 0;
+    text-align: center;
+}
+.csv-btn {
+    background: #43a047;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+    margin: 0;
+    display: inline-block;
+    font-size: 1rem;
+}
+.csv-btn:hover {
+    background: #2e7d32;
+}
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 0;
+}
+
+.page-btn {
+    background: #1976d2;
+    color: #fff;
+    padding: 7px 18px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+.page-btn:hover {
+    background: #1565c0;
+}
+
+.no-repos {
+    text-align: center;
+    color: #b71c1c;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: #f5faff;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.07);
+    justify-content: flex-start;
+}
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #1976d2;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.13);
+    transition: transform 0.2s;
+}
+.avatar:hover {
+    transform: scale(1.07);
+}
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.profile-link {
+    color: #1976d2;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.profile-link:hover {
+    color: #0d47a1;
+}
+.username {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.realname {
+    color: #37474f;
+    font-size: 1rem;
+    font-style: italic;
+}
+
+.sort-select {
+    padding: 10px 14px;
+    border: 1px solid #90caf9;
+    border-radius: 6px;
+    font-size: 1rem;
+    margin-left: 10px;
+    margin-right: 10px;
+    background: #f5faff;
+    color: #1976d2;
+    transition: border 0.2s;
+}
+.sort-select:focus {
+    border: 1.5px solid #1976d2;
+    outline: none;
+}
+@media (max-width: 600px) {
+    .search-form {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .sort-select {
+        margin: 0;
+        width: 100%;
+    }
 }
